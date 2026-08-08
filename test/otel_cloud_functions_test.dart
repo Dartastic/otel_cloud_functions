@@ -60,9 +60,11 @@ void main() {
       expect(span.kind, equals(SpanKind.client));
       expect(span.name, equals('firebase_functions addNumbers'));
       final attrs = _attrs(span);
-      expect(attrs['rpc.system'], equals('firebase_functions'));
-      expect(attrs['rpc.service'], equals('firebase_functions'));
-      expect(attrs['rpc.method'], equals('addNumbers'));
+      expect(attrs[Rpc.rpcSystemName.key], equals('firebase_functions'));
+      expect(
+        attrs[Rpc.rpcMethod.key],
+        equals('firebase_functions/addNumbers'),
+      );
       expect(span.status, isNot(equals(SpanStatusCode.Error)));
     });
 
@@ -82,7 +84,7 @@ void main() {
       final span = exporter.spans.single;
       expect(span.status, equals(SpanStatusCode.Error));
       final attrs = _attrs(span);
-      expect(attrs['error.type'], equals('not-found'));
+      expect(attrs[ErrorAttributes.errorType.key], equals('not-found'));
       final events = span.spanEvents ?? [];
       expect(events.any((e) => e.name == 'exception'), isTrue);
     });
@@ -97,7 +99,10 @@ void main() {
       );
 
       final span = exporter.spans.single;
-      expect(_attrs(span)['error.type'], equals('StateError'));
+      expect(
+        _attrs(span)[ErrorAttributes.errorType.key],
+        equals('StateError'),
+      );
     });
 
     test('runWithoutCloudFunctionsInstrumentationAsync bypasses span creation',

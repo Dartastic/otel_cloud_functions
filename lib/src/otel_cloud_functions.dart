@@ -12,14 +12,16 @@ const _rpcSystem = 'firebase_functions';
 Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
 
 Attributes _baseAttrs(String functionName) =>
+    // `rpc.system` is deprecated in favour of `rpc.system.name`, and
+    // `rpc.service` folds into `rpc.method`, which the registry expects to
+    // be fully qualified.
     OTel.attributesFromMap(<String, Object>{
-      RPC.rpcSystem.key: _rpcSystem,
-      RPC.rpcService.key: _rpcSystem,
-      RPC.rpcMethod.key: functionName,
+      Rpc.rpcSystemName.key: _rpcSystem,
+      Rpc.rpcMethod.key: '$_rpcSystem/$functionName',
     });
 
-/// Generic helper. Opens a CLIENT span with `rpc.system =
-/// firebase_functions` and `rpc.method = [name]`, runs [invoke],
+/// Generic helper. Opens a CLIENT span with `rpc.system.name =
+/// firebase_functions` and a fully-qualified `rpc.method`, runs [invoke],
 /// and flips the span to Error on exception (recordException →
 /// setStatus). Suitable for testing without constructing a real
 /// [HttpsCallable]; [tracedHttpsCall] uses it under the hood.
@@ -40,7 +42,7 @@ Future<R> tracedCloudFunctionCall<R>({
       // Firebase Functions exposes its status as a string
       // ('not-found', 'permission-denied', etc.) — the canonical
       // Google Cloud RPC code names.
-      OTel.attributeString(ErrorResource.errorType.key, e.code),
+      OTel.attributeString(ErrorAttributes.errorType.key, e.code),
     ]));
     span.recordException(e, stackTrace: st);
     span.setStatus(SpanStatusCode.Error, e.message ?? e.code);
@@ -48,7 +50,7 @@ Future<R> tracedCloudFunctionCall<R>({
   } catch (e, st) {
     span.addAttributes(OTel.attributes([
       OTel.attributeString(
-        ErrorResource.errorType.key,
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
@@ -63,7 +65,7 @@ Future<R> tracedCloudFunctionCall<R>({
 /// Traced wrapper around [HttpsCallable.call].
 ///
 /// Opens a CLIENT span named `firebase_functions <name>` with
-/// `rpc.system=firebase_functions` and `rpc.method=<name>`. The
+/// `rpc.system.name=firebase_functions` and a fully-qualified `rpc.method`. The
 /// function name has to be passed in because [HttpsCallable] does
 /// not expose it after construction.
 ///

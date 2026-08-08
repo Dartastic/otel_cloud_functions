@@ -31,9 +31,9 @@ The function name has to be passed explicitly because
 - **Span name**: `firebase_functions <function name>`
 - **Span kind**: `CLIENT`
 - **Attributes**:
-  - `rpc.system = firebase_functions`
-  - `rpc.service = firebase_functions`
-  - `rpc.method = <function name>`
+  - `rpc.system.name = firebase_functions`
+  - `rpc.method = firebase_functions/<function name>` (the registry
+    expects `rpc.method` to be fully qualified)
 - **Span status**: `Error` on `FirebaseFunctionsException` or any
   other thrown error. For `FirebaseFunctionsException`,
   `error.type` is set to the `code` field (e.g. `not-found`,

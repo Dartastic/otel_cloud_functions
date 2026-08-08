@@ -4,7 +4,7 @@
 /// OpenTelemetry instrumentation for `package:cloud_functions`.
 ///
 /// Use [tracedHttpsCall] to wrap an [HttpsCallable.call] invocation
-/// in a `CLIENT` span with `rpc.system=firebase_functions`.
+/// in a `CLIENT` span with `rpc.system.name=firebase_functions`.
 library;
 
 export 'src/cloud_functions_suppression.dart';
