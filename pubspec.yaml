@@ -2,7 +2,7 @@ name: otel_cloud_functions
 description: OpenTelemetry instrumentation for `package:cloud_functions`.
   Wraps HttpsCallable.call with `rpc.*` semconv spans for callable
   Firebase Functions.
-version: 0.1.0
+version: 0.2.0-wip
 repository: https://github.com/dartastic/otel_cloud_functions
 homepage: https://dartastic.io
 
